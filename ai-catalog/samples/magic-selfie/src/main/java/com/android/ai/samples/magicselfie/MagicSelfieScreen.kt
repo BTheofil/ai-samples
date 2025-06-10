@@ -88,12 +88,19 @@ fun MagicSelfieScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
     val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", android.hardware.camera2.CameraCharacteristics.LENS_FACING_FRONT)
+    cameraIntent.putExtra(
+        "android.intent.extras.CAMERA_FACING",
+        android.hardware.camera2.CameraCharacteristics.LENS_FACING_FRONT
+    )
     cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1)
     cameraIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true)
     val currentContext = LocalContext.current
-    val tempSelfiePhoto = File.createTempFile("tmp_selfie_picture", ".jpg",  currentContext.cacheDir)
-    val tempSelfiePhotoUri = FileProvider.getUriForFile(currentContext, currentContext.packageName+".provider", tempSelfiePhoto)
+    val tempSelfiePhoto = File.createTempFile("tmp_selfie_picture", ".jpg", currentContext.cacheDir)
+    val tempSelfiePhotoUri = FileProvider.getUriForFile(
+        currentContext,
+        currentContext.packageName + ".provider",
+        tempSelfiePhoto
+    )
 
     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, tempSelfiePhotoUri)
     cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -106,11 +113,17 @@ fun MagicSelfieScreen(
     val resultLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
-                selfieBitmap = rotateImageIfRequired(tempSelfiePhoto, MediaStore.Images.Media.getBitmap(currentContext.contentResolver, tempSelfiePhotoUri))
+                selfieBitmap = rotateImageIfRequired(
+                    tempSelfiePhoto,
+                    MediaStore.Images.Media.getBitmap(
+                        currentContext.contentResolver,
+                        tempSelfiePhotoUri
+                    )
+                )
             }
         }
 
-    Scaffold (
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -128,8 +141,8 @@ fun MagicSelfieScreen(
                 }
             )
         }
-    ) {innerPadding ->
-        Column (
+    ) { innerPadding ->
+        Column(
             Modifier
                 .padding(12.dp)
                 .padding(innerPadding)
@@ -143,13 +156,14 @@ fun MagicSelfieScreen(
                     )
             ) {
 
-                if (generatedBitmap!=null ) {
-                    Image(bitmap = generatedBitmap!!.asImageBitmap(),
+                if (generatedBitmap != null) {
+                    Image(
+                        bitmap = generatedBitmap!!.asImageBitmap(),
                         contentDescription = "Picture",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
-                } else if (selfieBitmap!=null) {
+                } else if (selfieBitmap != null) {
                     Image(
                         bitmap = selfieBitmap!!.asImageBitmap(),
                         contentDescription = "Picture",
@@ -161,7 +175,7 @@ fun MagicSelfieScreen(
             }
             Spacer(modifier = Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Button (
+                Button(
                     onClick = {
                         resultLauncher.launch(cameraIntent)
                     },
@@ -177,23 +191,25 @@ fun MagicSelfieScreen(
                 label = { Text("Prompt") }
             )
 
-            Button (
+            Button(
                 modifier = Modifier.padding(vertical = 8.dp),
                 onClick = {
-                    if (selfieBitmap!=null) {
+                    if (selfieBitmap != null) {
                         viewModel.createMagicSelfie(selfieBitmap!!, editTextValue)
                     }
                 },
-                enabled = progress==null
+                enabled = progress == null
             ) {
                 Icon(Icons.Default.SmartToy, contentDescription = "Robot")
                 Text(modifier = Modifier.padding(start = 8.dp), text = "Generate")
             }
 
-            if (progress!=null){
-                Spacer(modifier = Modifier
-                    .height(30.dp)
-                    .padding(12.dp))
+            if (progress != null) {
+                Spacer(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .padding(12.dp)
+                )
                 Text(
                     text = progress!!
                 )
@@ -238,7 +254,8 @@ fun flipImage(bitmap: Bitmap, horizontal: Boolean, vertical: Boolean): Bitmap {
 
 @Composable
 fun SeeCodeButton(context: Context) {
-    val githubLink = "https://github.com/android/ai-samples/tree/main/ai-catalog/samples/magic-selfie"
+    val githubLink =
+        "https://github.com/android/ai-samples/tree/main/ai-catalog/samples/magic-selfie"
     Button(
         onClick = {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubLink))

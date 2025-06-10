@@ -29,11 +29,11 @@ import com.android.ai.samples.genai_summarization.GenAISummarizationScreen
 import com.android.ai.samples.genai_writing_assistance.GenAIWritingAssistanceScreen
 import com.android.ai.samples.imagen.ImagenScreen
 import com.android.ai.samples.magicselfie.MagicSelfieScreen
+import hu.tb.barcode.BarcodeScreen
 
 class SampleCatalog(
     context: Context
 ) {
-
     val list = listOf(
         SampleCatalogItem(
             title = context.getString(R.string.gemini_multimodal_sample_title),
@@ -96,10 +96,14 @@ class SampleCatalog(
             tags = listOf(SampleTags.GEMINI_2_0_FLASH, SampleTags.FIREBASE, SampleTags.MEDIA3),
             needsFirebase = true
         ),
-
-        // To create a new sample entry, add a new SampleCatalogItem here.
+        SampleCatalogItem(
+            title = "Barcode",
+            description = "barcode scanner",
+            route = "BarcodeScreen",
+            sampleEntryScreen = { BarcodeScreen() },
+            tags = listOf(SampleTags.ML_KIT)
+        )
     )
-
 }
 
 data class SampleCatalogItem(

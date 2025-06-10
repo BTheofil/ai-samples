@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.firebase.ai)
     ksp(libs.hilt.compiler)
 
+    implementation(project(":samples:barcode"))
     implementation(project(":samples:gemini-multimodal"))
     implementation(project(":samples:gemini-chatbot"))
     implementation(project(":samples:genai-summarization"))
