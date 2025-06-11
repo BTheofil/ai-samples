@@ -1,8 +1,9 @@
 package hu.tb.barcode
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -18,6 +19,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BarcodeViewModel : ViewModel() {
@@ -26,11 +28,15 @@ class BarcodeViewModel : ViewModel() {
         .enableAllPotentialBarcodes()
         .build()
 
-    private val _bitmap = MutableStateFlow<Bitmap?>(null)
-    val bitmap = _bitmap.asStateFlow()
+    private val _inputImage = MutableStateFlow<InputImage?>(null)
+    val inputImage = _inputImage.asStateFlow()
 
     private val _channel = Channel<String>()
     val channel = _channel.receiveAsFlow()
+
+    init {
+        barcodeProcessImage()
+    }
 
     fun takePicture(
         applicationContext: Context,
@@ -39,40 +45,21 @@ class BarcodeViewModel : ViewModel() {
         controller.takePicture(
             ContextCompat.getMainExecutor(applicationContext),
             object : OnImageCapturedCallback() {
+                @OptIn(ExperimentalGetImage::class)
                 override fun onCaptureSuccess(image: ImageProxy) {
                     super.onCaptureSuccess(image)
 
-                    val imageBitmap = image.toBitmap()
-                    val image = InputImage.fromBitmap(imageBitmap, 0)
-                    val scanner = BarcodeScanning.getClient(options)
-                    scanner.process(image)
-                        .addOnSuccessListener { barcodes ->
-                            for (barcode in barcodes) {
-                                val valueType = barcode.valueType
-                                when (valueType) {
-                                    Barcode.TYPE_WIFI -> {
-                                        val ssid = barcode.wifi!!.ssid
-                                        val password = barcode.wifi!!.password
-                                        val type = barcode.wifi!!.encryptionType
-                                        viewModelScope.launch {
-                                            _channel.send("$ssid $password $type")
-                                        }
-                                    }
-                                    Barcode.TYPE_URL -> {
-                                        val title = barcode.url!!.title
-                                        val url = barcode.url!!.url
-                                        viewModelScope.launch {
-                                            _channel.send("$title $url")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.e("Camera", exception.message?: "error when scanning")
-                        }
+                    val mediaImage = image.image
+                    if (mediaImage != null) {
+                        val processImage =
+                            InputImage.fromMediaImage(mediaImage, image.imageInfo.rotationDegrees)
 
-                    _bitmap.value = imageBitmap
+                        /*_inputImage.update {
+                            processImage
+                        }*/
+
+                        image.close()
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {
@@ -81,5 +68,16 @@ class BarcodeViewModel : ViewModel() {
                 }
             }
         )
+    }
+
+    private fun barcodeProcessImage() {
+        viewModelScope.launch {
+            inputImage.collect { image ->
+                image?.let {
+                    val result = BarcodeScanning.getClient(options).process(image)
+                    _channel.send("Sending: " + result.isSuccessful)
+                }
+            }
+        }
     }
 }

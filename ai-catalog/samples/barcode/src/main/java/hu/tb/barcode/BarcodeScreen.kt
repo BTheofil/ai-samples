@@ -1,8 +1,6 @@
 package hu.tb.barcode
 
 import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.camera.core.CameraSelector
@@ -28,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -45,27 +42,19 @@ fun BarcodeScreen(
         )
     }
 
-    val event = vm.channel.collectAsStateWithLifecycle(initialValue = "")
-    LaunchedEffect(event) {
+    LaunchedEffect(Unit) {
         vm.channel.collect { event ->
             Toast.makeText(
                 context,
                 event,
-                Toast.LENGTH_LONG,
+                Toast.LENGTH_SHORT,
             ).show()
         }
     }
 
     val controller = remember {
-        LifecycleCameraController(context).apply {
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE
-            )
-        }
+        LifecycleCameraController(context)
     }
-    controller.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-    val bitmap = vm.bitmap.collectAsStateWithLifecycle().value
 
     Scaffold(
         modifier = Modifier
@@ -81,8 +70,6 @@ fun BarcodeScreen(
                     .size(450.dp)
             ) {
                 CameraPreview(
-                    modifier = Modifier
-                        .fillMaxSize(),
                     controller = controller
                 )
             }
