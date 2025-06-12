@@ -30,6 +30,7 @@ import com.android.ai.samples.genai_writing_assistance.GenAIWritingAssistanceScr
 import com.android.ai.samples.imagen.ImagenScreen
 import com.android.ai.samples.magicselfie.MagicSelfieScreen
 import hu.tb.barcode.BarcodeScreen
+import hu.tb.track_object.ObjectDetectionScreen
 
 class SampleCatalog(
     context: Context
@@ -101,6 +102,13 @@ class SampleCatalog(
             description = "barcode scanner",
             route = "BarcodeScreen",
             sampleEntryScreen = { BarcodeScreen() },
+            tags = listOf(SampleTags.ML_KIT)
+        ),
+        SampleCatalogItem(
+            title = "Object detection",
+            description = "object detection",
+            route = "ObjectDetectionScreen",
+            sampleEntryScreen = { ObjectDetectionScreen() },
             tags = listOf(SampleTags.ML_KIT)
         )
     )

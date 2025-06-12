@@ -4,6 +4,7 @@ coilCompose = "3.1.0"
 firebaseBom = "33.14.0"
 mlkitGenAi = "1.0.0-beta1"
 barcodeMlkitGenAi = "17.3.0"
+objectDetectionMlkitGenAi = "17.0.2"
 kotlin = "2.1.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -38,6 +39,7 @@ genai-proofreading = { module = "com.google.mlkit:genai-proofreading", version.r
 genai-rewrite = { module = "com.google.mlkit:genai-rewriting", version.ref = "mlkitGenAi" }
 genai-summarization = { module = "com.google.mlkit:genai-summarization", version.ref = "mlkitGenAi" }
 genai-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeMlkitGenAi" }
+genai-detektion = { module = "com.google.mlkit:object-detection", version.ref = "objectDetectionMlkitGenAi" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -90,6 +90,7 @@ dependencies {
     implementation(project(":samples:imagen"))
     implementation(project(":samples:magic-selfie"))
     implementation(project(":samples:gemini-video-summarization"))
+    implementation(project(":samples:track-object"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
