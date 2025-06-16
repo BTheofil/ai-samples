@@ -56,5 +56,7 @@ dependencies {
     implementation("androidx.camera:camera-view:$cameraxVersion")
     implementation("androidx.camera:camera-extensions:$cameraxVersion")
 
+    //implementation ("androidx.camera:camera-mlkit-vision:1.3.0-alpha01")
+
     implementation("androidx.activity:activity-ktx:1.10.1")
 }

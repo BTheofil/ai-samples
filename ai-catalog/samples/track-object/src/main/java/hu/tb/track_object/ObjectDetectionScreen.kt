@@ -24,9 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -47,6 +49,9 @@ fun ObjectDetectionScreen() {
     val detectedObjects = remember {
         mutableStateOf<List<DetectedObject>>(emptyList())
     }
+
+    val imageWidth = remember { mutableStateOf(480) }
+    val imageHeight = remember { mutableStateOf(640) }
 
     Scaffold(
         modifier = Modifier
@@ -70,30 +75,23 @@ fun ObjectDetectionScreen() {
                             controller.setImageAnalysisAnalyzer(
                                 ContextCompat.getMainExecutor(context),
                                 ObjectImageAnalyzer(
-                                    detectable = { detectedObject ->
+                                    detectable = { detectedObject, width, height ->
                                         detectedObjects.value = detectedObject
+                                        imageWidth.value = width
+                                        imageHeight.value = height
                                     }
                                 )
                             )
                             controller.bindToLifecycle(lifecycleOwner)
-                            controller.imageAnalysisBackpressureStrategy
                             this.controller = controller
                         }
                     }
                 )
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    for (obj in detectedObjects.value) {
-                        drawRect(
-                            color = Color.Red,
-                            topLeft = obj.boundingBox.toComposeRect().topLeft,
-                            size = obj.boundingBox.toComposeRect().size,
-                            style = Stroke(30f)
-                        )
-                    }
-                }
+                DrawDetectedObjects(
+                    objects = detectedObjects.value,
+                    imageWidth = imageWidth.value,
+                    imageHeight = imageHeight.value,
+                )
             }
             Spacer(Modifier.height(64.dp))
             Column(
@@ -126,6 +124,39 @@ fun ObjectDetectionScreen() {
                     Spacer(Modifier.height(24.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun DrawDetectedObjects(
+    objects: List<DetectedObject>,
+    imageWidth: Int,
+    imageHeight: Int,
+) {
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .clipToBounds()
+
+    ) {
+        objects.forEach { obj ->
+            val imageSize = Size(imageWidth.toFloat(), imageHeight.toFloat())
+            val scaleX = size.width / imageSize.width
+            val scaleY = size.height / imageSize.height
+
+            val scaledLeft = obj.boundingBox.left * scaleX
+            val scaledTop = obj.boundingBox.top * scaleY
+            val scaledRight = obj.boundingBox.right * scaleX
+            val scaledBottom = obj.boundingBox.bottom * scaleY
+
+            drawRect(
+                color = Color.Red,
+                topLeft = Offset(scaledLeft, scaledTop),
+                size = Size(scaledRight - scaledLeft, scaledBottom - scaledTop),
+                style = Stroke(4f)
+            )
+
         }
     }
 }

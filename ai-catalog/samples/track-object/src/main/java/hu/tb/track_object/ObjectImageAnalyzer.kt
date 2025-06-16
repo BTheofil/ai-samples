@@ -11,7 +11,7 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 
 class ObjectImageAnalyzer(
-    private val detectable: (List<DetectedObject>) -> Unit
+    private val detectable: (List<DetectedObject>, width: Int, height: Int) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     private val options = ObjectDetectorOptions.Builder()
@@ -28,7 +28,7 @@ class ObjectImageAnalyzer(
             ObjectDetection.getClient(options).process(image)
                 .addOnSuccessListener { detectableObjects ->
                     //Log.d("MYTAG", "success")
-                    detectable(detectableObjects)
+                    detectable(detectableObjects, image.width, image.height)
                 }
                 .addOnCanceledListener {
                     //Log.d("MYTAG", "failed")
